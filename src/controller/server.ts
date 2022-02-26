@@ -1,6 +1,7 @@
 // express server
 import express, {Request, Response} from 'express';
 import bodyParser from 'body-parser';
+import axios from "axios";
 
 
 export const app = express();
@@ -20,11 +21,22 @@ router.get('/health', (req: Request, res: Response) => {
 
 
 
+router.get('/random-person', async (req: Request, res: Response) => {
+    try {
+        const {data} = await axios.get('https://randomuser.me/api/');
+        return res.status(200).json({result: data.results[0]});
+    } catch (err) {
+        console.log(err.message);
+        return res.status(500).json({error: err.message});
+    }
+});
+
+
 app.use('/', router);
 
 
-const port = process.env.PORT || 3000;
-
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}...`);
-});
+// const port = process.env.PORT || 3000;
+//
+// app.listen(port, () => {
+//     console.log(`Server is running on port ${port}...`);
+// });
