@@ -1,7 +1,7 @@
 {
   "name": "node-express-jest-starter",
   "author": "Jakub Kurdziel",
-  "website": "https://github.com/kubo550",
+  "website": "https://github.com/kubo550/node-express-jest-starter",
   "version": "1.0.0",
   "main": "src/index.ts",
   "license": "MIT",
