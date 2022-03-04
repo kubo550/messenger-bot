@@ -1,23 +1,36 @@
-export type RandomUserResponse = {
-    results: RandomUser[]
-    info: RandomUserInfo
+export type ReceivedMessage = {
+    object: 'page' | string,
+    entry: {
+        id: string,
+        time: number,
+        messaging: UserMessage[]
+    }[]
 }
 
-export type RandomUser = {
-    "gender": "female" | "male",
-    "name": {
-        "title": "Mrs" | "Ms",
-        "first": string,
-        "last": string,
+type UserMessage = {
+    sender: {
+        id: string,
     },
-    "email": string,
-    "phone": string,
-    "cell": string,
-}
+    recipient: {
+        id: string,
+    },
+    timestamp: number,
 
-type RandomUserInfo = {
-    seed: string,
-    results: number,
-    page: number,
-    version: string,
+    message?: {
+        mid: string,
+        seq?: number,
+        text: string,
+        attachments?: {
+            type: string,
+            payload: {
+                url: string,
+            },
+        },
+    },
+
+    postback?: {
+        payload: string,
+        title: string,
+        mid: string,
+    },
 }
