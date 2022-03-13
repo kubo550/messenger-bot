@@ -1,14 +1,15 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import path from "path";
-import dotenv from "dotenv";
+import path from 'path';
+import dotenv from 'dotenv';
 import WebhookController from './webhook/webhook-handler';
-import HealthController from "./health-check/health-controller";
-import ProfileController from "./profile/profile-handler";
-import {verifyRequestSignature} from "../utils/verifyRequestSignature";
+import HealthController from './health-check/health-controller';
+import ProfileController from './profile/profile-handler';
+import PublicController from './api/public-handler';
+import {verifyRequestSignature} from '../utils/verifyRequestSignature';
 
-
-dotenv.config();
+const envFile = process.env.NODE_ENV === 'test' ? `.env.test` : '.env'
+dotenv.config({path: path.join(path.resolve(), envFile)});
 
 export const app = express();
 
@@ -19,21 +20,20 @@ app.use(bodyParser.json({
     verify: verifyRequestSignature
 }));
 
-app.use(express.static(path.join(path.resolve(), "public")));
+app.use(express.static(path.join(path.resolve(), 'public')));
 
-app.set("view engine", "ejs");
+app.set('view engine', 'ejs');
 
 
 const router = express.Router({mergeParams: true});
 
 
-
 router.use('/health', HealthController);
-router.use("/profile", ProfileController);
+router.use('/profile', ProfileController);
 router.use('/webhook', WebhookController);
+router.use('api/v1', PublicController);
 
 app.use('/', router);
-
 
 
 if (process.env.stage !== 'test') {
@@ -43,7 +43,9 @@ if (process.env.stage !== 'test') {
         const {appUrl, verifyToken, pageId} = process.env;
 
         if (appUrl && verifyToken && pageId) {
+            console.log('Jeśli pierwszy raz odpalasz bota musisz zarejestrować url - kliknij ten link:')
             console.log(`${appUrl}/profile?mode=all&verify_token=${verifyToken}`);
+            console.log('Przetestuuj bota pisząc do niego:');
             console.log(`https://m.me/${pageId}`);
         }
     });

@@ -6,12 +6,17 @@ describe('Health Check', () => {
         process.env.stage = 'test';
     })
 
-    afterAll(() => {
+    afterEach(() => {
         delete process.env.stage;
     })
 
     it('should return 200 OK', async () => {
         const response = await supertest(app).get('/health');
         expect(response.status).toBe(200);
+    });
+
+    it('should work with test stage', async () => {
+        const response = await supertest(app).get('/health');
+        expect(response.body.stage).toBe('test');
     });
 });

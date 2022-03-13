@@ -1,5 +1,7 @@
 import express, {Request, Response} from 'express';
 import {ReceivedMessage} from "../../domain/types";
+import GraphApi from "../../utils/graph";
+import {generateGroupUrl, getScheduleForGroup} from "../../services/schedule";
 
 
 const router = express.Router({mergeParams: true});
@@ -20,43 +22,90 @@ router.get('/', (req: Request, res: Response) => {
 });
 
 interface Responder {
-    sendTextMessage(recipientId: string, message: string): Promise<any>;
+    sendTextMessage(message: string, delay?: number): Promise<any>;
 }
 
 
-class MessengerResponder  implements Responder {
+class MessengerResponder implements Responder {
     constructor(private readonly messengerSenderId: string) {
     }
 
 
-    async sendTextMessage( message: string): Promise<any> {
-        const body = {
+    async sendTextMessage(message: string, delay = 0): Promise<any> {
+        const responseBody = {
             recipient: {
                 id: this.messengerSenderId
             },
             message: {
                 text: message
-            }
+            },
         };
-        console.log('the response is ', body);
+
+        return GraphApi.callSendApi(responseBody)
+    }
+
+    async quickReply(text: string, quickReplies: { title: string, payload: string }[], delay = 0): Promise<any> {
+        const responseBody = {
+            recipient: {
+                id: this.messengerSenderId
+            },
+            message: {
+                text,
+                quick_replies: quickReplies.map(({title, payload}) => ({
+                    content_type: "text",
+                    title,
+                    payload
+                }))
+            },
+        };
+
+        return GraphApi.callSendApi(responseBody)
     }
 }
 
 router.post('/', async (req: Request<{}, {}, ReceivedMessage>, res: Response) => {
+    console.log("RECEIVED_MESSAGE");
     if (req.body.object === "page") {
         for (const entry of req.body.entry) {
             for (const event of entry.messaging) {
-                if (event.message?.text) {
-                    console.log("event.message.text", event.message.text);
-                    const message = event.message.text;
-                    const senderId = event.sender.id;
-                    const responder = new MessengerResponder(senderId);
-                    await responder.sendTextMessage(message);
-                }
 
+                try {
+                    const responder = new MessengerResponder(event.sender?.id);
+                    // todo: use switch or something else to handle different message types
+                    if (event.message?.text) {
+                        console.log("event.message.text", event.message.text);
+                        const message = event.message.text;
+                        // to send simple message
+                        // await responder.sendTextMessage(message);
+
+                        // to send message with pool
+                        // await responder.quickReply('Kiedy chcesz mieć angielski?', [
+                        //     {title: 'dziś', payload: 'Q1_GOOD'},
+                        //     {title: 'jutro', payload: 'Q1_TOMORROW'},
+                        //     {title: 'pojutrze', payload: 'Q1_DAYAFTER'},
+                        // ], 300);
+
+                        // TODO: move to separate file
+                        const classes = await getScheduleForGroup(process.env.group_01_id);
+                        if (classes.length > 0) {
+                            await responder.sendTextMessage(`W ten weekend masz ${classes.length} zajęć:`);
+                            for await (const [idx, l] of classes.entries()) {
+                                await responder.sendTextMessage(`${l.day} ${l.date}  ${l.from} - ${l.to} \n${l.subject} (${l.type}) \n${l.teacher || ''} ${l.room.includes('<a href=') ? '(Zdalnie)' : l.room || '' }`, (idx + 1) * 500);
+                            }
+
+                        } else {
+                            await responder.sendTextMessage("Ten weekend masz wolny szefie ");
+                            await responder.sendTextMessage(`Sprawdź swój plan zajęć na stronie ${generateGroupUrl(process.env.group_01_id)}`);
+                        }
+                        return res.sendStatus(200);
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
             }
         }
     }
+
     return res.sendStatus(200);
 });
 

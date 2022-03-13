@@ -34,3 +34,15 @@ type UserMessage = {
         mid: string,
     },
 }
+
+
+export type Lesson = {
+    date: string
+    day: string
+    from: string
+    to: string
+    subject: string
+    type: string
+    teacher?: string
+    room?: string
+}

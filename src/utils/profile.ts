@@ -1,5 +1,3 @@
-// import GraphApi from "./graphApi";
-
 import GraphApi from "./graph";
 
 export class Profile {
@@ -7,12 +5,12 @@ export class Profile {
     constructor(
         private appUrl: string,
         private shopUrl: string
-) {
+    ) {
     }
 
     public async setWebhook() {
         await GraphApi.callSubscriptionsAPI()
-        // await GraphApi.callSubscribedApps()
+        await GraphApi.callSubscribedApps()
     }
 
     public async setPageFeedWebhook() {
@@ -21,7 +19,7 @@ export class Profile {
     }
 
 
-    async getGetStarted() {
+    private async getGetStarted() {
         return {
             get_started: {
                 payload: "GET_STARTED"
@@ -29,10 +27,15 @@ export class Profile {
         }
     }
 
+    public async setGetStarted() {
+        const getStartedPayload = this.getGetStarted();
+        await GraphApi.callMessengerProfileAPI(getStartedPayload);
+    }
+
 
     private getPersistentMenu() {
         return [{
-            locale:'default',
+            locale: 'default',
             composer_input_disabled: false,
             call_to_actions: [
                 {
@@ -57,10 +60,9 @@ export class Profile {
     }
 
     setWhitelistedDomains() {
-        let domainPayload = this.getWhitelistedDomains();
+        const domainPayload = this.getWhitelistedDomains();
         return GraphApi.callMessengerProfileAPI(domainPayload);
     }
-
 
 
 }
