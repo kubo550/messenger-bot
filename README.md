@@ -25,6 +25,66 @@
 </div>
 
 
+<!-- GETTING STARTED -->
+## Getting Started
+
+This is an example of how you may give instructions on setting up your project locally.
+To get a local copy up and running follow these simple example steps.
+
+### Prerequisites
+
+This is an example of how to list things you need to use the software and how to install them.
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
+* ngrok
+  ```sh
+  npm install -g ngrok
+  ```
+  
+### Installation
+
+_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+
+1. Clone the repo
+   ```sh
+   git clone git@github.com:kubo550/messenger-bot.git
+   ```
+2. Install NPM packages
+   ```sh
+   npm install
+   ```
+3. Create .env file
+   ```sh
+   mv .env.example .env
+   ```
+4. Enter all environment variables in .env file you can message me to get them
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+Before you start you need to create a special tunnel between your localhost and the network. Open terminal and type
+```sh
+./ngrok http 3000
+```
+then copy the forwarding url **remeber to use HTTPS protocol** and paste it to .env file as _appUrl_ **without slash at the end** and as _shopUrl_
+**with slash at the end**. Now if you are using node v >= 16.x you can simply enter 
+```sh
+npm run start
+```
+
+
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+
 ## :pencil: License
 
 This project is licensed under [MIT](https://opensource.org/licenses/MIT) license.
