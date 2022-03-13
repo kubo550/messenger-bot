@@ -26,12 +26,12 @@
 
 
 <!-- GETTING STARTED -->
-## Getting Started
+## :runner: Getting Started
 
 This is an example of how you may give instructions on setting up your project locally.
 To get a local copy up and running follow these simple example steps.
 
-### Prerequisites
+### :nut_and_bolt: Prerequisites
 
 This is an example of how to list things you need to use the software and how to install them.
 * npm
@@ -43,7 +43,7 @@ This is an example of how to list things you need to use the software and how to
   npm install -g ngrok
   ```
   
-### Installation
+### :arrow_down: Installation
 
 _Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
 
@@ -59,14 +59,14 @@ _Below is an example of how you can instruct your audience on installing and set
    ```sh
    mv .env.example .env
    ```
-4. Enter all environment variables in .env file you can message me to get them
+4. Enter all environment variables in .env file you can DM me to get them
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 
 <!-- USAGE EXAMPLES -->
-## Usage
+## :computer: Usage
 
 Before you start you need to create a special tunnel between your localhost and the network. Open terminal and type
 ```sh
