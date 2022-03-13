@@ -1,6 +1,4 @@
 
-
-<br />
 <div align="center">
   <a href="https://github.com/kubo550/messenger-bot">
     <img src="https://raw.githubusercontent.com/othneildrew/Best-README-Template/master/images/logo.png" alt="Logo" width="80" height="80">
