@@ -7,6 +7,7 @@ import HealthController from './health-check/health-controller';
 import ProfileController from './profile/profile-handler';
 import PublicController from './api/public-handler';
 import {verifyRequestSignature} from '../utils/verifyRequestSignature';
+import expressBasicAuth from "express-basic-auth";
 
 const envFile = process.env.NODE_ENV === 'test' ? `.env.test` : '.env'
 dotenv.config({path: path.join(path.resolve(), envFile)});
@@ -31,7 +32,15 @@ const router = express.Router({mergeParams: true});
 router.use('/health', HealthController);
 router.use('/profile', ProfileController);
 router.use('/webhook', WebhookController);
-router.use('api/v1', PublicController);
+
+router.use(expressBasicAuth({
+    challenge: true,
+    users: {
+        [process.env.username]: process.env.password
+    },
+}))
+
+router.use('/api/v1', PublicController);
 
 app.use('/', router);
 

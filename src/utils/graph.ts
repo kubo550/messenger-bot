@@ -9,7 +9,7 @@ class GraphApi {
             access_token: process.env.pageAccessToken
         }).toString();
 
-        return fetch(url.toString().toString(), {
+        return fetch(url.toString(), {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(requestBody)
@@ -75,7 +75,6 @@ class GraphApi {
             fields: fields,
             include_values: "true"
         });
-        console.log(url);
         //@ts-ignore
         await fetch(url, {
             method: "POST",

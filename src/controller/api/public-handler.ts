@@ -1,13 +1,27 @@
 import express from 'express';
 import type {Request, Response} from 'express';
+import {MessengerResponder} from "../webhook/webhook-handler";
 
 const router = express.Router({mergeParams: true});
 
-// todo: - add routes
-router.post('/send-message', (req: Request, res: Response) => {
-    return res.status(200).json({
-        message: 'message sent'
-    });
-});
+type SendMessageRequest = Request<{}, {}, { message: string; to: string | string[]; }>;
+
+router.post('/send-message', async (req: SendMessageRequest, res: Response) => {
+    try {
+        const {message, to} = req.body;
+        console.log(`send-message ${message} to ${to}`);
+
+        if (typeof to === 'string') {
+            const responder = new MessengerResponder(to)
+            await responder.sendTextMessage(message);
+        }
+
+        return res.sendStatus(200);
+
+    } catch (err) {
+        console.log(err.message)
+        res.status(500)
+    }
+ });
 
 export default router;
