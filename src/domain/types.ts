@@ -20,6 +20,9 @@ type UserMessage = {
         mid: string,
         seq?: number,
         text: string,
+        quick_reply?: {
+            payload: string
+        }
         attachments?: {
             type: string,
             payload: {

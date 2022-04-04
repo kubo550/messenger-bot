@@ -1,7 +1,8 @@
 import express, {Request, Response} from 'express';
 import {ReceivedMessage} from "../../domain/types";
 import GraphApi from "../../utils/graph";
-// import {generateGroupUrl, getScheduleForGroup} from "../../services/schedule";
+import {LessonShortName, ScheduleApiClient} from "../../services/schedule";
+import moment from "moment";
 
 
 const router = express.Router({mergeParams: true});
@@ -66,40 +67,74 @@ export class MessengerResponder implements Responder {
     }
 }
 
+
 router.post('/', async (req: Request<{}, {}, ReceivedMessage>, res: Response) => {
     console.log("RECEIVED_MESSAGE");
     if (req.body.object === "page") {
         for (const entry of req.body.entry) {
             for (const event of entry.messaging) {
-
                 try {
                     const responder = new MessengerResponder(event.sender?.id);
                     // todo: use switch or something else to handle different message types
                     if (event.message?.text) {
                         console.log("event.message.text", event.message.text);
                         const message = event.message.text;
+                        const payload = event.message?.quick_reply?.payload;
                         try {
-                            await responder.sendTextMessage(message);
+                            // todo: move to separate class
+                            if (payload) {
+                                if (payload.toUpperCase() === 'SCHEDULE' ) {
+                                    await responder.quickReply('Co dokładnie mam sprawdzić?', [
+                                        {title: 'Ten tydzień', payload: 'SCHEDULE_ACTUAL'},
+                                        {title: 'Kiedy zajęcia', payload: 'SCHEDULE_TERMINAL'},
+                                    ], 300);
 
-                            // to send message with pool
-                            // await responder.quickReply('Kiedy chcesz mieć angielski?', [
-                            //     {title: 'dziś', payload: 'Q1_GOOD'},
-                            //     {title: 'jutro', payload: 'Q1_TOMORROW'},
-                            //     {title: 'pojutrze', payload: 'Q1_DAYAFTER'},
-                            // ], 300);
+                                    return res.sendStatus(200);
+                                }else if (payload.toUpperCase() === 'SCHEDULE_ACTUAL') {
+                                    await responder.quickReply('Która grupa?', [
+                                        {title: 'Pierwsza', payload: 'SCHEDULE_ACTUAL_190201'},
+                                        {title: 'Druga', payload: 'SCHEDULE_ACTUAL_190271'},
+                                    ], 300);
 
-                            // TODO: move to separate file
-                            // const classes = await getScheduleForGroup(process.env.group_01_id);
-                            // if (classes.length > 0) {
-                            //     await responder.sendTextMessage(`W ten weekend masz ${classes.length} zajęć:`);
-                            //     for await (const [idx, l] of classes.entries()) {
-                            //         await responder.sendTextMessage(`${l.day} ${l.date}  ${l.from} - ${l.to} \n${l.subject} (${l.type}) \n${l.teacher || ''} ${l.room.includes('<a href=') ? '(Zdalnie)' : l.room || ''}`, (idx + 1) * 500);
-                            //     }
-                            //
-                            // } else {
-                            //     await responder.sendTextMessage("Ten weekend masz wolny szefie ");
-                            //     await responder.sendTextMessage(`Sprawdź swój plan zajęć na stronie ${generateGroupUrl(process.env.group_01_id)}`);
-                            // }
+                                    return res.sendStatus(200);
+                                } else if (payload.toUpperCase().includes('SCHEDULE_ACTUAL_')) {
+                                    const groupId = payload.toUpperCase().replace('SCHEDULE_ACTUAL_', '');
+                                    const scheduleClient = new ScheduleApiClient(groupId);
+                                    const schedule = await scheduleClient.getActualScheduleForGroup();
+                                    const message = schedule.map(({date, day, subject, teacher, room,from}) => `${onlyMonthAndDay(date)} ${day} ${from} ${subject}  ${teacher || ''} ${generateClass(room)}`).join('\n');
+                                    await responder.sendTextMessage(`W tym tygodniu masz ${schedule.length} zajęć:`);
+                                    await responder.sendTextMessage(message, 300);
+
+                                    return res.sendStatus(200);
+                                } else if (payload.toUpperCase() === 'SCHEDULE_TERMINAL') {
+                                    await responder.quickReply('Który przedmiot?', [
+                                        {title: 'Pracownia Programowania', payload: 'SCHEDULE_TERMINAL_PRACOWNIA'},
+                                        {title: 'Ekonomia', payload: 'SCHEDULE_TERMINAL_EKONOMIA'},
+                                        {title: 'Matematika', payload: 'SCHEDULE_TERMINAL_MATEMATYKA'},
+                                        {title: 'Statystyka', payload: 'SCHEDULE_TERMINAL_STATYSTYKA'},
+                                        {title: 'Dobre praktyki', payload: 'SCHEDULE_TERMINAL_PRAKTYKI'},
+                                        {title: 'Wstep do systemow', payload: 'SCHEDULE_TERMINAL_SYSTEMY'},
+                                        {title: 'Angielski', payload: 'SCHEDULE_TERMINAL_ANGIELSKI'},
+                                    ], 300);
+
+                                    return res.sendStatus(200);
+                                }else if (payload.toUpperCase().includes('SCHEDULE_TERMINAL_')){
+                                    const lessonShortName = payload.replace('SCHEDULE_TERMINAL_', '').toLowerCase() as LessonShortName;
+                                    const scheduleClient = new ScheduleApiClient('190201');
+                                    const schedule = await scheduleClient.getLessonsTerminal(lessonShortName);
+                                    const message = schedule.map(({day,date, teacher, room,from}) => `${onlyMonthAndDay(date)} ${day} ${from} ${teacher || ''} ${generateClass(room)}`).join('\n');
+                                    await responder.sendTextMessage(`Łącznie ${uppercaseFirstLetter(lessonShortName)} masz ${schedule.length} zajęć:`);
+                                    await responder.sendTextMessage(message, 300);
+
+                                    return res.sendStatus(200);
+                                }
+                            }
+                            await responder.quickReply('Co mogę dla Ciebie zrobić?', [
+                                {title: 'Plan zajęć', payload: 'SCHEDULE'},
+                                {title: 'Zabij dziekana', payload: 'KILL'},
+                                {title: 'Inne', payload: 'OTHER'},
+                            ], 300);
+
                         } catch (err) {
                             await responder.sendTextMessage('kuuuuurwa sorry coś poszło nie tak')
                             console.log(err);
@@ -117,3 +152,20 @@ router.post('/', async (req: Request<{}, {}, ReceivedMessage>, res: Response) =>
 });
 
 export default router;
+
+function generateClass(str: string | undefined) {
+    if (!str) {
+        return '';
+    }
+    if (str.includes('<a href=')) {
+        return 'Wykład';
+    }
+    return str;
+}
+function uppercaseFirstLetter(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function onlyMonthAndDay(date: string) {
+    return moment(date, 'YYYY-MM-DD').format('MM-DD');
+}

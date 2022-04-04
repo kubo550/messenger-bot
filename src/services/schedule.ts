@@ -11,15 +11,52 @@ moment.updateLocale('en', {
     }
 });
 
-export const generateGroupUrl = (groupId: string) => `https://planzajec.uek.krakow.pl/index.php?typ=G&id=${groupId}&okres=1`;
+const semester2LessonMap = {
+    'pracownia': 'Pracownia programowania II',
+    'ekonomia': 'Ekonomia',
+    'matematika': 'Analiza matematyczna i algebra liniowa',
+    'statystyka': 'Rachunek prawdopodobieństwa i statystyka',
+    'praktyki': 'Dobre praktyki tworzenia oprogramowania',
+    'systemy': 'Wstęp do systemów informacyjnych',
+    'angielski': 'Język obcy 1.2',
+} as const;
 
-export const getScheduleForGroup = async (group: string): Promise<Lesson[]> => {
-    const groupApiUrl = generateGroupUrl(group)+'&xml';
-    const {data} = await axios.get(groupApiUrl);
-    const json = xml2js(data, {compact: true});
+export type LessonShortName = keyof typeof semester2LessonMap;
+export type LessonFullName = 'Pracownia programowania II' | 'Ekonomia' | 'Analiza matematyczna i algebra liniowa' | 'Rachunek prawdopodobieństwa i statystyka' | 'Dobre praktyki tworzenia oprogramowania' | 'Wstęp do systemów informacyjnych' | 'Język obcy 1.2';
 
+export class ScheduleApiClient {
+    private readonly baseUrl: string;
+    constructor(private readonly groupId: string) {
+        this.baseUrl = 'https://planzajec.uek.krakow.pl/index.php'
+    }
+
+    private generateScheduleUrl(period: '1' | '2'): string {
+        return `${this.baseUrl}?typ=G&id=${this.groupId}&okres=${period}&xml`;
+    }
+
+    private async fetchSchedule(uekApiUrl: string) {
+        const { data } = await axios.get(uekApiUrl);
+        const json = xml2js(data, {compact: true})
+        return extractLessons(json);
+    }
+
+
+    public async getActualScheduleForGroup(): Promise<Lesson[]> {
+        const lessons = await this.fetchSchedule(this.generateScheduleUrl( '1'));
+        return lessons.filter(isInThisWeek);
+    }
+
+    public async getLessonsTerminal(lessonName: LessonShortName): Promise<Lesson[]> {
+        const lessons = await this.fetchSchedule(this.generateScheduleUrl('2'));
+        return lessons.filter(isFutureLesson).filter(isThisLesson(getLessonFullName(lessonName)));
+    }
+
+
+}
+
+function extractLessons(json: any) {
     //@ts-ignore
-    const schedule = json["plan-zajec"]["zajecia"].map(l => ({
+    return json["plan-zajec"]["zajecia"].map(l => ({
         date: l.termin._text,
         day: l.dzien._text,
         from: l["od-godz"]._text,
@@ -29,13 +66,22 @@ export const getScheduleForGroup = async (group: string): Promise<Lesson[]> => {
         teacher: l.nauczyciel._text,
         room: l.sala?._text
     }));
-    return getNextLessonsInThisWeek(schedule);
-};
+}
 
-const getNextLessonsInThisWeek = (group: Lesson[]) => group.filter(l => {
-    const date = moment(l.date, "YYYY-MM-DD");
-    const today = moment();
-    const isInTheFuture = date.isAfter(today);
-    const isInTheSameWeek = date.isSame(today, 'week');
-    return isInTheFuture && isInTheSameWeek;
-});
+function isThisLesson(lessonName: string) {
+    return (l: Lesson) => l.subject === lessonName;
+}
+
+function isFutureLesson(l: Lesson) {
+    const lessonDate = moment(l.date, "YYYY-MM-DD");
+    return lessonDate.isAfter(moment());
+}
+
+function isInThisWeek(l: Lesson) {
+    const lessonDate = moment(l.date, "YYYY-MM-DD");
+    return isFutureLesson(l) && lessonDate.isSame(moment(), 'week');
+}
+
+function getLessonFullName(key: LessonShortName): LessonFullName {
+    return semester2LessonMap[key];
+}
