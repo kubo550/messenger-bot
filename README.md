@@ -38,6 +38,11 @@ This is an example of how to list things you need to use the software and how to
   ```sh
   npm install npm@latest -g
   ```
+  Or by NVM
+  ```sh
+  nvm use 16
+  ```
+  
 * ngrok
   ```sh
   npm install -g ngrok
