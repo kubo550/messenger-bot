@@ -14,11 +14,7 @@ router.get('/', async (req: Request, res: Response) => {
             const messengerBotProfile = new Profile(process.env.appUrl, process.env.shopUrl);
 
             try {
-                await messengerBotProfile.setWebhook()
-                await messengerBotProfile.setGetStarted();
-                await messengerBotProfile.setWhitelistedDomains();
-                await messengerBotProfile.setPersistentMenu();
-                await messengerBotProfile.setPageFeedWebhook();
+                await messengerBotProfile.init()
 
                 res.status(200).json({
                     "success": true,

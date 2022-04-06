@@ -13,7 +13,7 @@ router.post('/send-message', async (req: SendMessageRequest, res: Response) => {
 
         if (typeof to === 'string') {
             const responder = new MessengerResponder(to)
-            await responder.sendTextMessage(message);
+            // await responder.sendTextMessage(message);
         }
 
         return res.sendStatus(200);

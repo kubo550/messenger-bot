@@ -64,5 +64,10 @@ export class Profile {
         return GraphApi.callMessengerProfileAPI(domainPayload);
     }
 
-
+    public async init() {
+        await this.setWebhook();
+        await this.setGetStarted();
+        await this.setPersistentMenu();
+        await this.setWhitelistedDomains();
+    }
 }
