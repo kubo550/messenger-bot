@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import WebhookController from './webhook/webhook-handler';
 import HealthController from './health-check/health-controller';
 import ProfileController from './profile/profile-handler';
-import PublicController from './api/public-handler';
 import {verifyRequestSignature} from '../utils/verifyRequestSignature';
 import expressBasicAuth from "express-basic-auth";
 
@@ -40,7 +39,6 @@ router.use(expressBasicAuth({
     },
 }))
 
-router.use('/api/v1', PublicController);
 
 app.use('/', router);
 

@@ -5,8 +5,8 @@ import {MessengerResponder} from "./message-responser";
 export class ScheduleResponder extends MessengerResponder {
     private readonly payload: string;
 
-    constructor(messengerSenderId: string, payload: string) {
-        super(messengerSenderId);
+    constructor(payload: string) {
+        super();
         this.payload = payload.toUpperCase();
     }
 

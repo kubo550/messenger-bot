@@ -3,11 +3,11 @@ export type ReceivedMessage = {
     entry: {
         id: string,
         time: number,
-        messaging: UserMessage[]
+        messaging: UserMessageEvent[]
     }[]
 }
 
-type UserMessage = {
+export type UserMessageEvent = {
     sender: {
         id: string,
     },

@@ -5,8 +5,7 @@ export function verifyRequestSignature(req: IncomingMessage, res: ServerResponse
     const signature = req.headers["x-hub-signature"] as string;
 
     if (!signature) {
-
-        // console.warn(`Couldn't find "x-hub-signature" in headers.`);
+        console.warn(`Couldn't find "x-hub-signature" in headers.`);
     } else {
         const elements = signature.split("=");
         const signatureHash = elements[1];

@@ -1,53 +1,48 @@
-import express, {Request, Response} from 'express';
+import express, { Request, Response} from 'express';
 import {ReceivedMessage} from "../../domain/types";
-import GraphApi from "../../utils/graph";
-import {ResponseFactory} from "../../services/message-responser";
+import {ResponseFactory} from "../../services/response-factory";
+import {Sender} from "../../services/sender";
+import {getPayload, isValidMode, isValidToken, verifyModeAndToken} from "./utils";
 
 
 const router = express.Router({mergeParams: true});
 
-router.get('/', (req: Request, res: Response) => {
-    const mode = req.query["hub.mode"];
-    const token = req.query["hub.verify_token"];
+router.get('/', verifyModeAndToken, (req: Request, res: Response) => {
+    const mode = req.query["hub.mode"] as string;
+    const token = req.query["hub.verify_token"] as string;
     const challenge = req.query["hub.challenge"];
 
-    if (mode && token) {
-        if (mode === "subscribe" && token === process.env.verifyToken) {
-            console.log("WEBHOOK_VERIFIED");
-            res.status(200).send(challenge);
-        } else {
-            res.sendStatus(403);
-        }
+    if (isValidMode(mode) && isValidToken(token)) {
+        console.log("WEBHOOK_VERIFIED");
+        return res.status(200).send(challenge);
+    } else {
+        return res.status(403).json({error: "Verification failed"});
     }
 });
 
 
 router.post('/', async (req: Request<{}, {}, ReceivedMessage>, res: Response) => {
-    console.log("RECEIVED_MESSAGE");
+    console.log("RECEIVED_MESSAGE", JSON.stringify(req.body));
+
     if (req.body.object === "page") {
         for (const entry of req.body.entry) {
             for (const event of entry.messaging) {
-                if (event.message?.text) {
-                    console.log("event.message.text", event.message.text);
-                    const message = event.message.text;
-                    const payload = event.message?.quick_reply?.payload;
+                const message = event.message?.text;
+                const sender = event.sender.id;
 
-                    const responder = new ResponseFactory(event.sender?.id).getResponder(payload);
+                const payload = getPayload(event)
+                const responder = new ResponseFactory().getResponder(payload);
+
+                try {
                     const response = await responder.handlePayload();
-                    // TODO: handle response as array
-
-                    try {
-                        await GraphApi.callSendApi(response);
-                    } catch (err) {
-                        console.log(err);
-                        await GraphApi.callSendApi(responder.genFallback());
-                    }
-                    return res.sendStatus(200);
+                    await Sender.sendMessage(sender, response);
+                } catch (err) {
+                    console.error(err.message);
+                    await Sender.sendMessage(sender, responder.genFallback());
                 }
             }
         }
     }
-
     return res.sendStatus(200);
 });
 

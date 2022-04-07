@@ -50,8 +50,6 @@ export class ScheduleApiClient {
         const lessons = await this.fetchSchedule(this.generateScheduleUrl('2'));
         return lessons.filter(isFutureLesson).filter(isThisLesson(getLessonFullName(lessonName)));
     }
-
-
 }
 
 function extractLessons(json: any) {
