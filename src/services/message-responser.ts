@@ -31,9 +31,9 @@ export class MessengerResponder implements Responder {
 
     public handlePayload(): Object {
         return this.genQuickReply('Co mogę dla Ciebie zrobić?', [
-            {title: 'Plan zajęć', payload: 'SCHEDULE'},
-            {title: 'Zabij dziekana', payload: 'KILL'},
-            {title: 'Inne', payload: 'OTHER'},
+            {title: 'Plan zajęć', payload: MessagePayload.SCHEDULE},
+            {title: 'Zabij dziekana', payload: MessagePayload.KILL},
+            {title: 'Inne', payload: MessagePayload.OTHER}
         ]);
     }
 
@@ -42,3 +42,8 @@ export class MessengerResponder implements Responder {
     }
 }
 
+enum MessagePayload {
+    SCHEDULE = 'SCHEDULE',
+    KILL = 'KILL',
+    OTHER = 'OTHER',
+}
