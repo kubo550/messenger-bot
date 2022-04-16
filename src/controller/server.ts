@@ -2,16 +2,25 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
 import dotenv from 'dotenv';
+import cors from 'cors';
+import morgan from 'morgan';
+import helmet from "helmet";
+import expressBasicAuth from "express-basic-auth";
 import WebhookController from './webhook/webhook-handler';
 import HealthController from './health-check/health-controller';
 import ProfileController from './profile/profile-handler';
 import {verifyRequestSignature} from '../utils/verifyRequestSignature';
-import expressBasicAuth from "express-basic-auth";
 
 const envFile = process.env.NODE_ENV === 'test' ? `.env.test` : '.env'
 dotenv.config({path: path.join(path.resolve(), envFile)});
 
+checkEnvVariables();
+
 export const app = express();
+
+app.use(cors());
+app.use(helmet());
+app.use(morgan('dev'));
 
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -47,13 +56,27 @@ if (process.env.stage !== 'test') {
     const port = process.env.PORT || 3000;
     app.listen(port, () => {
         console.log(`Server is listening on port ${port}`);
-        const {appUrl, verifyToken, pageId} = process.env;
+        firstRunInfo()
+    });
+}
 
-        if (appUrl && verifyToken && pageId) {
-            console.log('Jeśli pierwszy raz odpalasz bota musisz zarejestrować url - kliknij ten link:')
-            console.log(`${appUrl}/profile?mode=all&verify_token=${verifyToken}`);
-            console.log('Przetestuuj bota pisząc do niego:');
-            console.log(`https://m.me/${pageId}`);
+function firstRunInfo() {
+    const {appUrl, verifyToken, pageId} = process.env;
+
+    if (appUrl && verifyToken && pageId) {
+        console.log(`
+            To set up your app, go to: ${appUrl}/profile?mode=all&verify_token=${verifyToken} \n
+            To test bot in messenger send any message at: https://m.me/${pageId}`);
+    }
+}
+
+function checkEnvVariables() {
+    const requiredVariables = ["pageId", "appId", "pageAccessToken", "appSecret", "verifyToken", "appUrl", "shopUrl", "apiUrl"];
+
+    requiredVariables.forEach(variable => {
+        if (!process.env[variable]) {
+            console.error(`Required variable ${variable} is not defined! Check .env file`);
+            process.exit(1);
         }
     });
 }
