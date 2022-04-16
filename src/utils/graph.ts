@@ -9,12 +9,11 @@ class GraphApi {
             access_token: process.env.pageAccessToken
         }).toString();
 
-        return fetch(url.toString(), {
+        return await fetch(url.toString(), {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(requestBody)
         });
-
     }
 
     static async callMessengerProfileAPI(requestBody: any): Promise<any> {
