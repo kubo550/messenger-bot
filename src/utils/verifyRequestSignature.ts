@@ -5,7 +5,7 @@ export function verifyRequestSignature(req: IncomingMessage, res: ServerResponse
     const signature = req.headers["x-hub-signature"] as string;
 
     if (!signature) {
-        console.warn(`Couldn't find "x-hub-signature" in headers.`);
+        process.env.stage === 'prod' && console.warn(`Couldn't find "x-hub-signature" in headers.`);
     } else {
         const elements = signature.split("=");
         const signatureHash = elements[1];
@@ -13,8 +13,9 @@ export function verifyRequestSignature(req: IncomingMessage, res: ServerResponse
             .createHmac("sha1", process.env.appSecret)
             .update(buf)
             .digest("hex");
-        if (signatureHash != expectedHash) {
+        if (signatureHash !== expectedHash) {
             throw new Error("Couldn't validate the request signature.");
         }
+        console.log("Request signature validated.");
     }
 }

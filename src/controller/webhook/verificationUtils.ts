@@ -16,6 +16,6 @@ export function verifyModeAndToken(req:Request, res:Response, next:NextFunction)
     if (req.query["hub.mode"] && req.query["hub.verify_token"]) {
         next();
     } else {
-        res.status(404).json({error: "No mode or token"});
+        res.status(401) .json({error: "No mode or token"});
     }
 }
