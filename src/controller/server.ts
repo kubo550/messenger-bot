@@ -4,15 +4,15 @@ import path from 'path';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
-import helmet from "helmet";
-import expressBasicAuth from "express-basic-auth";
+import helmet from 'helmet';
+import expressBasicAuth from 'express-basic-auth';
 import WebhookController from './webhook/webhook-handler';
 import HealthController from './health-check/health-controller';
 import ProfileController from './profile/profile-handler';
-import {verifyRequestSignature} from '../utils/verifyRequestSignature';
+import { verifyRequestSignature } from '../utils/verifyRequestSignature';
 
-const envFile = process.env.NODE_ENV === 'test' ? `.env.test` : '.env'
-dotenv.config({path: path.join(path.resolve(), envFile)});
+const envFile = process.env.NODE_ENV === 'test' ? `.env.test` : '.env';
+dotenv.config({ path: path.join(path.resolve(), envFile) });
 
 checkEnvVariables();
 
@@ -22,62 +22,72 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(bodyParser.json({
+app.use(
+  bodyParser.json({
     limit: '2mb',
-    verify: verifyRequestSignature
-}));
+    verify: verifyRequestSignature,
+  }),
+);
 
 app.use(express.static(path.join(path.resolve(), 'public')));
 
 app.set('view engine', 'ejs');
 
-
-const router = express.Router({mergeParams: true});
-
+const router = express.Router({ mergeParams: true });
 
 router.use('/health', HealthController);
 router.use('/profile', ProfileController);
 router.use('/webhook', WebhookController);
 
-router.use(expressBasicAuth({
+router.use(
+  expressBasicAuth({
     challenge: true,
     users: {
-        [process.env.username]: process.env.password
+      [process.env.username]: process.env.password,
     },
-}))
-
+  }),
+);
 
 app.use('/', router);
 
-
 if (process.env.stage !== 'test') {
-    const port = process.env.PORT || 3000;
-    app.listen(port, () => {
-        console.log(`Server is listening on port ${port}`);
-        firstRunInfo()
-    });
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Server is listening on port ${port}`);
+    firstRunInfo();
+  });
 }
 
 function firstRunInfo() {
-    const {appUrl, verifyToken, pageId} = process.env;
+  const { appUrl, verifyToken, pageId } = process.env;
 
-    if (appUrl && verifyToken && pageId) {
-        console.log(`
+  if (appUrl && verifyToken && pageId) {
+    console.log(`
             To set up your app, go to: ${appUrl}/profile?mode=all&verify_token=${verifyToken} \n
             To test bot in messenger send any message at: https://m.me/${pageId}`);
-    }
+  }
 }
 
 function checkEnvVariables() {
-    const requiredVariables = ["pageId", "appId", "pageAccessToken", "appSecret", "verifyToken", "appUrl", "shopUrl", "apiUrl"];
+  const requiredVariables = [
+    'pageId',
+    'appId',
+    'pageAccessToken',
+    'appSecret',
+    'verifyToken',
+    'appUrl',
+    'shopUrl',
+    'apiUrl',
+  ];
 
-    requiredVariables.forEach(variable => {
-        if (!process.env[variable]) {
-            console.error(`Required variable ${variable} is not defined! Check .env file`);
-            process.exit(1);
-        }
-    });
+  requiredVariables.forEach((variable) => {
+    if (!process.env[variable]) {
+      console.error(
+        `Required variable ${variable} is not defined! Check .env file`,
+      );
+      process.exit(1);
+    }
+  });
 }
-

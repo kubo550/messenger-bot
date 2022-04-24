@@ -1,51 +1,50 @@
 export type ReceivedMessage = {
-    object: 'page' | string,
-    entry: {
-        id: string,
-        time: number,
-        messaging: UserMessageEvent[]
-    }[]
-}
+  object: 'page' | string;
+  entry: {
+    id: string;
+    time: number;
+    messaging: UserMessageEvent[];
+  }[];
+};
 
 export type UserMessageEvent = {
-    sender: {
-        id: string,
-    },
-    recipient: {
-        id: string,
-    },
-    timestamp: number,
+  sender: {
+    id: string;
+  };
+  recipient: {
+    id: string;
+  };
+  timestamp: number;
 
-    message?: {
-        mid: string,
-        seq?: number,
-        text: string,
-        quick_reply?: {
-            payload: string
-        }
-        attachments?: {
-            type: string,
-            payload: {
-                url: string,
-            },
-        },
-    },
+  message?: {
+    mid: string;
+    seq?: number;
+    text: string;
+    quick_reply?: {
+      payload: string;
+    };
+    attachments?: {
+      type: string;
+      payload: {
+        url: string;
+      };
+    };
+  };
 
-    postback?: {
-        payload: string,
-        title: string,
-        mid: string,
-    },
-}
-
+  postback?: {
+    payload: string;
+    title: string;
+    mid: string;
+  };
+};
 
 export type Lesson = {
-    date: string
-    day: string
-    from: string
-    to: string
-    subject: string
-    type: string
-    teacher?: string
-    room?: string
-}
+  date: string;
+  day: string;
+  from: string;
+  to: string;
+  subject: string;
+  type: string;
+  teacher?: string;
+  room?: string;
+};
