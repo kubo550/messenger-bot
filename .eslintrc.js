@@ -22,13 +22,4 @@ module.exports = {
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
     },
-    // ignore test files
-    overrides: [
-        {
-            files: ['**/*.spec.ts'],
-            rules: {
-                '@typescript-eslint/no-explicit-any': 'off',
-            },
-        },
-    ],
 };
