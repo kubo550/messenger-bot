@@ -3,11 +3,12 @@ import { app } from '../server';
 import nock from 'nock';
 
 describe('profile', () => {
-  afterAll(() => {
+  beforeAll(() => {
     process.env.apiUrl = 'https://app.com';
     process.env.pageId = '123';
     process.env.pageAccessToken = 'page-token';
     process.env.verifyToken = 'verify-token';
+    process.env.appId = 'app-id';
   });
 
   afterEach(() => {
@@ -38,31 +39,7 @@ describe('profile', () => {
     expect(response.status).toBe(401);
   });
 
-  xit('should set up app when ', async () => {
-    nock(`${process.env.apiUrl}/${process.env.appId}`)
-      .post('/subscriptions')
-      .query(
-        (params) =>
-          params.access_token === 'page-token' &&
-          params.object === 'page' &&
-          params.callback_url === 'https://app.com/webhook' &&
-          params.verify_token === 'verify-token' &&
-          params.fields ===
-            'messages, messaging_postbacks, messaging_optins, message_deliveries, messaging_referrals' &&
-          params.include_values === 'true',
-      )
-      .reply(200, {});
-
-    nock(`${process.env.apiUrl}/${process.env.pageId}`)
-      .post('/subscribed_apps')
-      .query(
-        (params) =>
-          params.access_token === 'page-token' &&
-          params.subscribed_fields ===
-            'messages, messaging_postbacks, messaging_optins, message_deliveries, messaging_referrals',
-      )
-      .reply(200, {});
-
+  it('should set up app with correct parameters', async () => {
     const response = await supertest(app).get(
       `/profile?mode=test&verify_token=verify-token`,
     );

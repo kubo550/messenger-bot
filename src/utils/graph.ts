@@ -81,15 +81,18 @@ class GraphApi {
       object: 'page',
       callback_url: `${process.env.appUrl}/webhook`,
       verify_token: process.env.verifyToken,
-      fields: fields,
+      fields,
       include_values: 'true',
     });
+    console.log(url.search);
+    console.log(url);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    await fetch(url, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
+    return res;
   }
 }
 

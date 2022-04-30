@@ -2,6 +2,7 @@ import supertest from 'supertest';
 import nock from 'nock';
 import { app } from '../../server';
 import { MessengerMessageGenerator } from './utils/messenger-message-generator';
+import { GraphApiMock } from './utils/graph-api-mock';
 
 export type QuickReply = {
   content_type: string;
@@ -9,8 +10,7 @@ export type QuickReply = {
   payload: string;
 };
 
-const senderId = 'my-sender-id';
-const generateMessage = () => new MessengerMessageGenerator(senderId);
+const generateMessage = () => new MessengerMessageGenerator();
 
 describe('send message', () => {
   beforeAll(() => {
@@ -33,49 +33,68 @@ describe('send message', () => {
   });
 
   describe('default simple message', () => {
-    it('should send message ', async () => {
-      nock(process.env.apiUrl)
-        .post('/me/messages')
-        .query((query) => {
-          expect(query.access_token).toBe('page-token');
-          return true;
-        })
-        .reply(200);
+    const graphClient = new GraphApiMock();
 
-      const response = await sendMessage(
-        generateMessage().withText('hello').build(),
-      );
+    beforeEach(() => {
+      graphClient.mockSendMessages();
+    });
+
+    afterEach(() => {
+      graphClient.resetSentMessages();
+    });
+
+    it('should return 200', async () => {
+      const response = await sendMessage(generateMessage().build());
 
       expect(response.status).toBe(200);
     });
 
-    //     should call graph api with correct parameters
-    it('should send message with quick replies', async () => {
-      thisBodyWillBeSend(
-        getDefaultMessageResponse('Co mogę dla Ciebie zrobić?', senderId, [
-          {
-            title: 'Plan zajęć',
-            payload: 'SCHEDULE',
-          },
-          {
-            title: 'Zabij dziekana',
-            payload: 'KILL',
-          },
-          {
-            title: 'Inne',
-            payload: 'OTHER',
-          },
-        ]),
-      );
+    it('should call api with correct params', async () => {
+      await sendMessage(generateMessage().build());
 
-      const response = await sendMessage(
-        generateMessage().withText('hello').build(),
-      );
+      expect(graphClient.getSentMessagesQueries()).toEqual([
+        { access_token: 'page-token' },
+      ]);
+    });
 
-      expect(response.status).toBe(200);
+    it('should send message to user who sent the message', async () => {
+      const message = generateMessage().withSenderId('my-sender-id').build();
+
+      await sendMessage(message);
+
+      expect(graphClient.getSentMessages()).toEqual([
+        expect.objectContaining({ recipient: { id: 'my-sender-id' } }),
+      ]);
+    });
+
+    it('should default welcome message contain quick replies', async () => {
+      const defaultWelcomeMessage = 'Co mogę dla Ciebie zrobić?';
+
+      await sendMessage(generateMessage().withText('hello').build());
+
+      expect(graphClient.getLastSentMessageText()).toEqual(defaultWelcomeMessage);
+      expect(graphClient.getLastSentMessageQuickReplies()).toEqual([
+        {
+          content_type: 'text',
+          payload: 'SCHEDULE',
+          title: 'Plan zajęć',
+        },
+        {
+          content_type: 'text',
+          payload: 'KILL',
+          title: 'Zabij dziekana',
+        },
+        {
+          content_type: 'text',
+          payload: 'OTHER',
+          title: 'Inne',
+        },
+      ]);
     });
   });
 
+
+  // todo refactor this tests
   describe('quick reply', () => {
     describe('schedule', () => {
       it('should send message with quick replies', async () => {
@@ -95,7 +114,7 @@ describe('send message', () => {
               },
             ],
           },
-          recipient: { id: senderId },
+          recipient: { id: 'my-sender-id' },
         });
         const message = generateMessage()
           .withText('Plan zajęć')

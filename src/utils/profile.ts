@@ -59,9 +59,13 @@ export class Profile {
   }
 
   public async init() {
+    console.log('1');
     await this.setWebhook();
+    console.log('2');
     await this.setGetStarted();
+    console.log('3');
     await this.setPersistentMenu();
+    console.log('4');
     await this.setWhitelistedDomains();
   }
 }
