@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { Profile } from '../../utils/profile';
 import { isSet, isValidToken } from '../webhook/verificationUtils';
+import { Logger } from '../../utils/logger';
 
 const router = Router({ mergeParams: true });
 
@@ -20,7 +21,7 @@ router.get('/', authorization, async (req: Request, res: Response) => {
 
     return;
   } catch (err) {
-    console.log(err.message);
+    Logger.error(err.message);
     return res.status(500).json({ message: err.message });
   }
 });

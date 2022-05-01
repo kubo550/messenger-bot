@@ -8,6 +8,7 @@ import {
   isValidToken,
   verifyModeAndToken,
 } from './verificationUtils';
+import { Logger } from '../../utils/logger';
 
 const router = express.Router({ mergeParams: true });
 
@@ -18,7 +19,7 @@ router.get('/', verifyModeAndToken, (req: Request, res: Response) => {
   const challenge = req.query['hub.challenge'];
 
   if (isValidMode(mode) && isValidToken(token)) {
-    console.log('WEBHOOK_VERIFIED');
+    Logger.success('webhook verified');
     return res.status(200).send(challenge);
   } else {
     return res.status(403).json({ error: 'Verification failed' });
@@ -29,7 +30,7 @@ router.get('/', verifyModeAndToken, (req: Request, res: Response) => {
 router.post(
   '/',
   async (req: Request<any, any, ReceivedMessage>, res: Response) => {
-    console.log('RECEIVED_MESSAGE', JSON.stringify(req.body));
+    Logger.info('webhook - received message', req.body);
 
     if (req.body.object === 'page') {
       for (const entry of req.body.entry) {

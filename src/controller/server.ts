@@ -10,6 +10,7 @@ import WebhookController from './webhook/webhook-handler';
 import HealthController from './health-check/health-controller';
 import ProfileController from './profile/profile-handler';
 import { verifyRequestSignature } from '../utils/verifyRequestSignature';
+import { Logger } from '../utils/logger';
 
 const envFile = process.env.NODE_ENV === 'test' ? `.env.test` : '.env';
 dotenv.config({ path: path.join(path.resolve(), envFile) });
@@ -55,7 +56,7 @@ app.use('/', router);
 if (process.env.stage !== 'test') {
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
+    Logger.info(`Server is listening on port ${port}`);
     firstRunInfo();
   });
 }
@@ -64,7 +65,7 @@ function firstRunInfo() {
   const { appUrl, verifyToken, pageId } = process.env;
 
   if (appUrl && verifyToken && pageId) {
-    console.log(`
+    Logger.info(`
             To set up your app, go to: ${appUrl}/profile?mode=all&verify_token=${verifyToken} \n
             To test bot in messenger send any message at: https://m.me/${pageId}`);
   }
@@ -84,7 +85,7 @@ function checkEnvVariables() {
 
   requiredVariables.forEach((variable) => {
     if (!process.env[variable]) {
-      console.error(
+      Logger.error(
         `Required variable ${variable} is not defined! Check .env file`,
       );
       process.exit(1);

@@ -1,5 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import crypto from 'crypto';
+import { Logger } from './logger';
 
 export function verifyRequestSignature(
   req: IncomingMessage,
@@ -10,7 +11,7 @@ export function verifyRequestSignature(
 
   if (!signature) {
     process.env.stage === 'prod' &&
-      console.warn(`Couldn't find "x-hub-signature" in headers.`);
+      Logger.warn(`Couldn't find "x-hub-signature" in headers.`);
   } else {
     const elements = signature.split('=');
     const signatureHash = elements[1];
@@ -21,6 +22,6 @@ export function verifyRequestSignature(
     if (signatureHash !== expectedHash) {
       throw new Error("Couldn't validate the request signature.");
     }
-    console.log('Request signature validated.');
+    Logger.success('Request signature validated.');
   }
 }

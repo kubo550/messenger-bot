@@ -1,5 +1,6 @@
 import fetch from 'cross-fetch';
 import { URL, URLSearchParams } from 'url';
+import { Logger } from './logger';
 
 class GraphApi {
   static async callSendApi(requestBody: any) {
@@ -16,7 +17,7 @@ class GraphApi {
   }
 
   static async callMessengerProfileAPI(requestBody: any): Promise<any> {
-    console.log(`Setting Messenger Profile for app ${process.env.appId}`);
+    Logger.info(`Setting Messenger Profile for app ${process.env.appId}`);
     const url = new URL(`${process.env.appUrl}/me/messenger_profile`);
 
     url.search = new URLSearchParams({
@@ -32,7 +33,7 @@ class GraphApi {
 
   static async callSubscriptionsAPI(customFields?: string): Promise<any> {
     const webhookUrl = `${process.env.appUrl}/webhook`;
-    console.log(
+    Logger.info(
       `Setting app ${process.env.appId} callback url to ${webhookUrl}`,
     );
 
@@ -84,8 +85,6 @@ class GraphApi {
       fields,
       include_values: 'true',
     });
-    console.log(url.search);
-    console.log(url);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     const res = await fetch(url, {
