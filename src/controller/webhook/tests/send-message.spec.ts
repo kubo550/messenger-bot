@@ -4,12 +4,6 @@ import { app } from '../../server';
 import { MessengerMessageGenerator } from './utils/messenger-message-generator';
 import { GraphApiMock } from './utils/graph-api-mock';
 
-export type QuickReply = {
-  content_type: string;
-  title: string;
-  payload: string;
-};
-
 const generateMessage = () => new MessengerMessageGenerator();
 
 describe('send message', () => {
@@ -35,21 +29,21 @@ describe('send message', () => {
   describe('default simple message', () => {
     const graphClient = new GraphApiMock();
 
-    beforeEach(() => {
-      graphClient.mockSendMessages();
-    });
-
     afterEach(() => {
       graphClient.resetSentMessages();
     });
 
     it('should return 200', async () => {
+      graphClient.mockSendMessages();
+
       const response = await sendMessage(generateMessage().build());
 
       expect(response.status).toBe(200);
     });
 
     it('should call api with correct params', async () => {
+      graphClient.mockSendMessages();
+
       await sendMessage(generateMessage().build());
 
       expect(graphClient.getSentMessagesQueries()).toEqual([
@@ -58,6 +52,8 @@ describe('send message', () => {
     });
 
     it('should send message to user who sent the message', async () => {
+      graphClient.mockSendMessages();
+
       const message = generateMessage().withSenderId('my-sender-id').build();
 
       await sendMessage(message);
@@ -68,6 +64,7 @@ describe('send message', () => {
     });
 
     it('should default welcome message contain quick replies', async () => {
+      graphClient.mockSendMessages();
       const defaultWelcomeMessage = 'Co mogę dla Ciebie zrobić?';
 
       await sendMessage(generateMessage().withText('hello').build());
@@ -94,66 +91,44 @@ describe('send message', () => {
   });
 
 
-  // todo refactor this tests
   describe('quick reply', () => {
+    const graphClient = new GraphApiMock();
+
+    beforeEach(() => {
+      graphClient.mockSendMessages();
+    });
+
+    afterEach(() => {
+      graphClient.resetSentMessages();
+    });
+
     describe('schedule', () => {
+
       it('should send message with quick replies', async () => {
-        thisBodyWillBeSend({
-          message: {
-            text: 'Co dokładnie mam sprawdzić?',
-            quick_replies: [
-              {
-                content_type: 'text',
-                title: 'Ten tydzień',
-                payload: 'SCHEDULE_ACTUAL',
-              },
-              {
-                content_type: 'text',
-                title: 'Kiedy zajęcia',
-                payload: 'SCHEDULE_TERMINAL',
-              },
-            ],
-          },
-          recipient: { id: 'my-sender-id' },
-        });
         const message = generateMessage()
           .withText('Plan zajęć')
           .withQuickReply('SCHEDULE')
           .build();
 
-        const response = await sendMessage(message);
+        await sendMessage(message);
 
-        expect(response.status).toBe(200);
+        expect(graphClient.getLastSentMessageQuickReplies()).toEqual([
+          {
+            content_type: 'text',
+            title: 'Ten tydzień',
+            payload: 'SCHEDULE_ACTUAL',
+          },
+          {
+            content_type: 'text',
+            title: 'Kiedy zajęcia',
+            payload: 'SCHEDULE_TERMINAL',
+          },
+        ]);
       });
     });
   });
-
-  const sendMessage = async (message: any) =>
-    supertest(app).post('/webhook').send(message);
-
-  const getDefaultMessageResponse = (
-    text: string,
-    recipientId: string,
-    quickReplies: Omit<QuickReply, 'content_type'>[],
-  ) => ({
-    message: {
-      text,
-      quick_replies: quickReplies.map((qr) => ({
-        content_type: 'text',
-        title: qr.title,
-        payload: qr.payload,
-      })),
-    },
-    recipient: { id: recipientId },
-  });
 });
 
-function thisBodyWillBeSend(body?: any) {
-  nock(process.env.apiUrl)
-    .post('/me/messages', body)
-    .query((query) => {
-      expect(query.access_token).toBe('page-token');
-      return true;
-    })
-    .reply(200);
-}
+
+const sendMessage = async (message: any) =>
+  supertest(app).post('/webhook').send(message);
