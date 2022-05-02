@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,5 +17,16 @@ jobs:
         with:
           node-version: 16
       - run: npm ci
+      - run: npm run build --if-present
       - run: npm test
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: 'messenger-api-bot'
+          heroku_email: 'qwercy142@gmail.com'
