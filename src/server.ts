@@ -73,6 +73,7 @@ function firstRunInfo() {
 }
 
 function checkEnvVariables() {
+  console.log('Checking environment variables...');
   const requiredVariables = [
     'pageId',
     'appId',
