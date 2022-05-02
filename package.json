@@ -9,7 +9,7 @@
     "node": "^16.0.0"
   },
   "scripts": {
-    "start": "nodemon src/controller/server.ts",
+    "start": "ts-node src/controller/server.ts",
     "lint": "eslint \"{src,apps,libs,test,spec}/**/*.ts\" --fix",
     "test": "jest --coverage --verbose"
   },
