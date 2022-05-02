@@ -9,6 +9,7 @@ import expressBasicAuth from 'express-basic-auth';
 import WebhookController from './controller/webhook/webhook-handler';
 import HealthController from './controller/health-check/health-controller';
 import ProfileController from './controller/profile/profile-handler';
+import SandboxController from './controller/sandbox/sandbox-handler';
 import { verifyRequestSignature } from './utils/verifyRequestSignature';
 import { Logger } from './utils/logger';
 
@@ -38,10 +39,10 @@ app.set('view engine', 'ejs');
 
 const router = express.Router({ mergeParams: true });
 
+router.use('/sandbox', SandboxController);
 router.use('/health', HealthController);
 router.use('/profile', ProfileController);
 router.use('/webhook', WebhookController);
-
 
 router.use(
   expressBasicAuth({
