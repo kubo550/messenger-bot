@@ -9,8 +9,9 @@
     "node": "^16.0.0"
   },
   "scripts": {
-    "start": "ts-node src/controller/server.ts",
+    "start": "node build/controller/server.js",
     "watch": "nodemon src/controller/server.ts",
+    "build": "tsc",
     "lint": "eslint \"{src,apps,libs,test,spec}/**/*.ts\" --fix",
     "test": "jest --coverage --verbose"
   },
