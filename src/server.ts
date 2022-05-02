@@ -6,11 +6,11 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import expressBasicAuth from 'express-basic-auth';
-import WebhookController from './webhook/webhook-handler';
-import HealthController from './health-check/health-controller';
-import ProfileController from './profile/profile-handler';
-import { verifyRequestSignature } from '../utils/verifyRequestSignature';
-import { Logger } from '../utils/logger';
+import WebhookController from './controller/webhook/webhook-handler';
+import HealthController from './controller/health-check/health-controller';
+import ProfileController from './controller/profile/profile-handler';
+import { verifyRequestSignature } from './utils/verifyRequestSignature';
+import { Logger } from './utils/logger';
 
 const envFile = process.env.NODE_ENV === 'test' ? `.env.test` : '.env';
 dotenv.config({ path: path.join(path.resolve(), envFile) });

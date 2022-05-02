@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import nock from 'nock';
-import { app } from '../../server';
+import { app } from '../../../server';
 import { MessengerMessageGenerator } from './utils/messenger-message-generator';
 import { GraphApiMock } from './utils/graph-api-mock';
 

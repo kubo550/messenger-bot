@@ -3,14 +3,14 @@
   "author": "Jakub Kurdziel",
   "website": "https://github.com/kubo550/node-express-jest-starter",
   "version": "1.0.0",
-  "main": "src/controller/server.ts",
+  "main": "src/server.ts",
   "license": "MIT",
   "engines": {
     "node": "^16.0.0"
   },
   "scripts": {
-    "start": "node dist/controller/server.js",
-    "watch": "nodemon src/controller/server.ts",
+    "start": "node dist/server.js",
+    "watch": "nodemon src/server.ts",
     "build": "tsc",
     "lint": "eslint \"{src,apps,libs,test,spec}/**/*.ts\" --fix",
     "test": "jest --coverage --verbose"
