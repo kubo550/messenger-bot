@@ -14,12 +14,13 @@
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "Node",
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "allowJs": false
   },
   "include": [
     "**/*.ts"
   ],
   "exclude": [
-    "src/__mocks__",
+    "src/__mocks__"
   ]
 }
