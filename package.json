@@ -10,6 +10,7 @@
   },
   "scripts": {
     "start": "ts-node src/controller/server.ts",
+    "watch": "nodemon src/controller/server.ts",
     "lint": "eslint \"{src,apps,libs,test,spec}/**/*.ts\" --fix",
     "test": "jest --coverage --verbose"
   },
