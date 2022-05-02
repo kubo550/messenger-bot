@@ -9,7 +9,7 @@
     "node": "^16.0.0"
   },
   "scripts": {
-    "start": "node build/controller/server.js",
+    "start": "node dist/controller/server.js",
     "watch": "nodemon src/controller/server.ts",
     "build": "tsc",
     "lint": "eslint \"{src,apps,libs,test,spec}/**/*.ts\" --fix",
