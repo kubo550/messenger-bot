@@ -21,22 +21,15 @@
 <a href="https://github.com/elangosundar/awesome-README-templates/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kubo550/messenger-bot?color=2b9348" alt="License Badge"/></a>
 
   <br />
+  
   [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=kubo550_messenger-bot&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=kubo550_messenger-bot)
-  
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=kubo550_messenger-bot&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=kubo550_messenger-bot)
-  
   [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=kubo550_messenger-bot&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=kubo550_messenger-bot)
-  
   [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=kubo550_messenger-bot&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=kubo550_messenger-bot)
-  
   [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=kubo550_messenger-bot&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=kubo550_messenger-bot)
-  
   [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=kubo550_messenger-bot&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=kubo550_messenger-bot)
-  
   [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=kubo550_messenger-bot&metric=bugs)](https://sonarcloud.io/summary/new_code?id=kubo550_messenger-bot)
-  
   [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=kubo550_messenger-bot&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=kubo550_messenger-bot)
-  
   [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=kubo550_messenger-bot&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=kubo550_messenger-bot)
   
 </div>
