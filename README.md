@@ -13,6 +13,7 @@
 
 <div align="center">
 
+  <a href="https://github.com/kubo550/messenger-bot/actions"><img alt="Tests Passing" src="https://github.com/kubo550/messenger-bot/workflows/Test/badge.svg" /></a>
 <a href="https://github.com/kubo550/messenger-bot/stargazers"><img src="https://img.shields.io/github/stars/kubo550/messenger-bot" alt="Stars Badge"/></a>
 <a href="https://github.com/kubo550/messenger-bot/network/members"><img src="https://img.shields.io/github/forks/kubo550/messenger-bot" alt="Forks Badge"/></a>
 <a href="https://github.com/kubo550/messenger-bot/pulls"><img src="https://img.shields.io/github/issues-pr/kubo550/messenger-bot" alt="Pull Requests Badge"/></a>
